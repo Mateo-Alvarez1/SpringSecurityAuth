@@ -1,5 +1,6 @@
 package com.amigosCode.SecurityWithSpring.configuration;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -17,23 +18,18 @@ public class SecurityConfiguration {
     private final JwtAuthFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
 
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-       http
-               .csrf(csrf -> csrf.disable());
 
-       http
-               .authorizeHttpRequests( auth -> {
-                   auth.requestMatchers("/api/v1/auth/**").permitAll();
-                   auth.anyRequest().authenticated();
-               });
-       http
-               .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-
-       http
-               .authenticationProvider(authenticationProvider);
-       http
-               .addFilterBefore(jwtAuthFilter , UsernamePasswordAuthenticationFilter.class);
+        http.csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> {
+                    auth.requestMatchers("/api/v1/auth/**").permitAll();
+                    auth.anyRequest().authenticated();
+                }).sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authenticationProvider(authenticationProvider)
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
+
     }
 
 
